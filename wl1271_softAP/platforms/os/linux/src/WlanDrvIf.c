@@ -81,6 +81,16 @@
 #include "SdioDrv.h"
 #include "report.h"
 
+extern void disable_wext_ioctl(void);
+
+extern int htc_linux_periodic_wakeup_init(void);
+extern void htc_linux_periodic_wakeup_exit(void);
+extern void htc_linux_periodic_wakeup_start(void);
+extern void htc_linux_periodic_wakeup_stop(void);
+
+static int wlanDrvIf_pm_resume(void);
+static int wlanDrvIf_pm_suspend(void);
+
 /* save driver handle just for module cleanup */
 static TWlanDrvIfObj *pDrvStaticHandle;  
 
@@ -715,7 +725,9 @@ int wlanDrvIf_Open (struct net_device *dev)
 #ifndef AP_MODE_ENABLED 
 	netif_start_queue (dev); /* Temporal, use wlanDrvIf_Enable/DisableTx in STA mode */
 #endif
-
+#if defined HOST_PLATFORM_OMAP3430 || defined HOST_PLATFORM_ZOOM2 || defined HOST_PLATFORM_ZOOM1 || defined HOST_PLATFORM_MSM
+    sdioDrv_register_pm(wlanDrvIf_pm_resume, wlanDrvIf_pm_suspend);
+#endif
     return 0;
 }
 
@@ -746,6 +758,18 @@ int wlanDrvIf_Stop (struct net_device *dev)
 
     return 0;
 }
+
+#if defined HOST_PLATFORM_OMAP3430 || defined HOST_PLATFORM_ZOOM2 || defined HOST_PLATFORM_ZOOM1 || defined HOST_PLATFORM_MSM
+static int wlanDrvIf_pm_resume(void)
+{
+    return(wlanDrvIf_Start(pDrvStaticHandle->netdev));
+}
+
+static int wlanDrvIf_pm_suspend(void)
+{
+    return(wlanDrvIf_Stop(pDrvStaticHandle->netdev));
+}
+#endif
 
 int wlanDrvIf_Release (struct net_device *dev)
 {
@@ -846,7 +870,6 @@ void wlanDrvIf_CommandDone (TI_HANDLE hOs, void *pSignalObject, TI_UINT8 *CmdRes
     os_SignalObjectSet (hOs, pSignalObject);
 }
 
-
 /** 
  * \fn     wlanDrvIf_Create
  * \brief  Create the driver instance
@@ -881,6 +904,7 @@ static int wlanDrvIf_Create (void)
     #endif
     memset (drv, 0, sizeof(TWlanDrvIfObj));
 
+    drv->irq = TNETW_IRQ;
     drv->tCommon.eDriverState = DRV_STATE_IDLE;
 
 #ifdef AP_MODE_ENABLED
@@ -891,8 +915,16 @@ static int wlanDrvIf_Create (void)
     drv->pWorkQueue = create_freezeable_workqueue(TIWLAN_WQ_NAME);
     if (!drv->pWorkQueue)
     {
-        return -ENOMEM;
+        ti_dprintf (TIWLAN_LOG_ERROR, "wlanDrvIf_Create(): Failed to create workQ!\n");
+        rc = -EINVAL;
+        goto drv_create_end_1;
     }
+    drv->wl_packet = 0;
+    drv->wl_count = 0;
+#ifdef CONFIG_HAS_WAKELOCK
+    wake_lock_init(&drv->wl_wifi, WAKE_LOCK_SUSPEND, "wifi_wake");
+    wake_lock_init(&drv->wl_rxwake, WAKE_LOCK_SUSPEND, "wifi_rx_wake");
+#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
     INIT_WORK(&drv->tWork, wlanDrvIf_DriverTask, (void *)drv);
@@ -905,8 +937,7 @@ static int wlanDrvIf_Create (void)
     rc = wlanDrvIf_SetupNetif (drv);
     if (rc)
     {
-        kfree (drv);
-        return rc;
+        goto drv_create_end_2;
     }
    
 
@@ -919,11 +950,12 @@ static int wlanDrvIf_Create (void)
     if (drv->wl_sock == NULL)
     {
         ti_dprintf (TIWLAN_LOG_ERROR, "netlink_kernel_create() failed !\n");
-        return -EINVAL;
+        rc = -EINVAL;
+        goto drv_create_end_3;
     }
 
     /* Create all driver modules and link their handles */
-    drvMain_Create (drv, 
+    rc = drvMain_Create (drv, 
                     &drv->tCommon.hDrvMain, 
                     &drv->tCommon.hCmdHndlr, 
                     &drv->tCommon.hContext, 
@@ -935,6 +967,12 @@ static int wlanDrvIf_Create (void)
                     &drv->tCommon.hCmdDispatch,
                     &drv->tCommon.hReport);
 
+    if (rc != TI_OK) {
+        ti_dprintf (TIWLAN_LOG_ERROR, "%s: Failed to dvrMain_Create!\n", __func__);
+        rc = -EINVAL;
+        goto drv_create_end_4;
+    }
+
     /* 
      *  Initialize interrupts (or polling mode for debug):
      */
@@ -944,14 +982,44 @@ static int wlanDrvIf_Create (void)
 #else 
     /* Normal mode: Interrupts (the default mode) */
     rc = hPlatform_initInterrupt (drv, (void*)wlanDrvIf_HandleInterrupt);
-    if (rc)
-    {
+    if (rc) {
         ti_dprintf (TIWLAN_LOG_ERROR, "wlanDrvIf_Create(): Failed to register interrupt handler!\n");
-        return rc;
+        goto drv_create_end_5;
     }
 #endif  /* PRIODIC_INTERRUPT */
 
-   return 0;
+    return 0;
+
+
+drv_create_end_5:
+	/* Destroy all driver modules */
+	if (drv->tCommon.hDrvMain) {
+		drvMain_Destroy (drv->tCommon.hDrvMain);
+	}
+drv_create_end_4:
+	if (drv->wl_sock) {
+		sock_release (drv->wl_sock->sk_socket);
+	}
+
+drv_create_end_3:
+	/* Release the driver network interface */
+	if (drv->netdev) {
+		unregister_netdev (drv->netdev);
+		free_netdev (drv->netdev);
+	}
+
+drv_create_end_2:
+#ifdef CONFIG_HAS_WAKELOCK
+	wake_lock_destroy(&drv->wl_wifi);
+	wake_lock_destroy(&drv->wl_rxwake);
+#endif
+	if (drv->pWorkQueue)
+		destroy_workqueue(drv->pWorkQueue);
+
+drv_create_end_1:
+	kfree(drv);
+	printk("%s: failed to create interface\n", __func__);
+	return rc;
 }
 
 
@@ -984,7 +1052,9 @@ static void wlanDrvIf_Destroy (TWlanDrvIfObj *drv)
 	free_netdev (drv->netdev);
     }
 
+#if 0
     destroy_workqueue (drv->pWorkQueue);
+#endif
 
 	/* Destroy all driver modules */
     if (drv->tCommon.hDrvMain)
@@ -993,7 +1063,7 @@ static void wlanDrvIf_Destroy (TWlanDrvIfObj *drv)
     }
 
     /* close the ipc_kernel socket*/
-    if (drv && drv->wl_sock) 
+    if (drv->wl_sock) 
     {
         sock_release (drv->wl_sock->sk_socket);
     }
@@ -1006,6 +1076,15 @@ static void wlanDrvIf_Destroy (TWlanDrvIfObj *drv)
     {
         hPlatform_freeInterrupt (drv);
     }
+#endif
+
+    if (drv->pWorkQueue) {
+        destroy_workqueue(drv->pWorkQueue);
+    }
+
+#ifdef CONFIG_HAS_WAKELOCK
+    wake_lock_destroy(&drv->wl_wifi);
+    wake_lock_destroy(&drv->wl_rxwake);
 #endif
 
     /* 
@@ -1057,15 +1136,27 @@ static void wlanDrvIf_Destroy (TWlanDrvIfObj *drv)
  */ 
 static int __init wlanDrvIf_ModuleInit (void)
 {
+    int error;
+
     printk(KERN_INFO "TIWLAN: driver init\n");
-    sdioDrv_init();
-    return wlanDrvIf_Create ();
+
+    if ((error = htc_linux_periodic_wakeup_init()) != 0) {
+        return error;
+    }
+    htc_linux_periodic_wakeup_start();
+
+    return wlanDrvIf_Create();
 }
 
 static void __exit wlanDrvIf_ModuleExit (void)
 {
+    disable_wext_ioctl();
+
+    htc_linux_periodic_wakeup_stop();
+    htc_linux_periodic_wakeup_exit();
+
     wlanDrvIf_Destroy (pDrvStaticHandle);
-    sdioDrv_exit();
+
     printk (KERN_INFO "TI WLAN: driver unloaded\n");
 }
 

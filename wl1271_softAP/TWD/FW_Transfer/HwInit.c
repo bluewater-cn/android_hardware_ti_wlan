@@ -633,6 +633,7 @@ TI_STATUS hwInit_Boot (TI_HANDLE hHwInit)
  * 
  * RETURNS: TI_OK 
  ****************************************************************************/
+int use52 = 1;
 static TI_STATUS hwInit_BootSm (TI_HANDLE hHwInit)
 {
     THwInit    *pHwInit = (THwInit *)hHwInit;
@@ -648,7 +649,20 @@ static TI_STATUS hwInit_BootSm (TI_HANDLE hHwInit)
 
     switch (pHwInit->uInitStage)
     {
+    case 99:    // sshi
+    use52 = 1;
+        pHwInit->uTxnIndex = 0;
+        pHwInit->uInitStage = 0;
+        /* Set the bus addresses partition to its "running" mode */
+        SET_WORK_PARTITION(pHwInit->aPartition)
+        hwInit_SetPartition (pHwInit,pHwInit->aPartition);
+
+        status =  hwInit_InitTopRegisterWrite( hHwInit, 0x48, 0x2);
+
+      EXCEPT (pHwInit, status)
+
     case 0:
+        use52 = 0;
         pHwInit->uInitStage++;
         pHwInit->uTxnIndex = 0;
 
@@ -2011,20 +2025,20 @@ TI_STATUS hwInit_InitPolarity(TI_HANDLE hHwInit)
 
    /*  To write to a top level address from the WLAN IP:
        Write the top level address to the OCP_POR_CTR register. 
-       Divide the top address by 2, and add 0x30000 to the result – for example for top address 0xC00, write to the OCP_POR_CTR 0x30600
+       Divide the top address by 2, and add 0x30000 to the result \96 for example for top address 0xC00, write to the OCP_POR_CTR 0x30600
        Write the data to the OCP_POR_WDATA register
        Write 0x1 to the OCP_CMD register. 
 
       To read from a top level address:
       Write the top level address to the OCP_POR_CTR register.
-      Divide the top address by 2, and add 0x30000 to the result – for example for top address 0xC00, write to the OCP_POR_CTR 0x30600 
+      Divide the top address by 2, and add 0x30000 to the result \96 for example for top address 0xC00, write to the OCP_POR_CTR 0x30600 
       Write 0x2 to the OCP_CMD register. 
       Poll bit [18] of OCP_DATA_RD for data valid indication
       Check bits 17:16 of OCP_DATA_RD:
-      00 – no response
-      01 – data valid / accept
-      10 – request failed
-      11 – response error
+      00 \96 no response
+      01 \96 data valid / accept
+      10 \96 request failed
+      11 \96 response error
       Read the data from the OCP_DATA_RD register
    */
       
@@ -2209,7 +2223,7 @@ TI_STATUS hwInit_InitTopRegisterWrite(TI_HANDLE hHwInit, TI_UINT32 uAddress, TI_
  {
      /*  To write to a top level address from the WLAN IP:
          Write the top level address to the OCP_POR_CTR register. 
-         Divide the top address by 2, and add 0x30000 to the result – for example for top address 0xC00, write to the OCP_POR_CTR 0x30600
+         Divide the top address by 2, and add 0x30000 to the result \96 for example for top address 0xC00, write to the OCP_POR_CTR 0x30600
          Write the data to the OCP_POR_WDATA register
          Write 0x1 to the OCP_CMD register. 
      */ 
@@ -2301,7 +2315,7 @@ TI_STATUS hwInit_InitTopRegisterRead(TI_HANDLE hHwInit, TI_UINT32 uAddress)
      /*  
         To read from a top level address:
         Write the top level address to the OCP_POR_CTR register.
-        Divide the top address by 2, and add 0x30000 to the result – for example for top address 0xC00, write to the OCP_POR_CTR 0x30600 
+        Divide the top address by 2, and add 0x30000 to the result \96 for example for top address 0xC00, write to the OCP_POR_CTR 0x30600 
         Write 0x2 to the OCP_CMD register. 
         Poll bit [18] of OCP_DATA_RD for data valid indication
         Check bits 17:16 of OCP_DATA_RD:

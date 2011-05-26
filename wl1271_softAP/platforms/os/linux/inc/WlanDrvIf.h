@@ -117,7 +117,12 @@ typedef struct
     struct net_device_stats  stats;     /* The driver's statistics for OS reports. */
     struct sock             *wl_sock;   /* The OS socket used for sending it the driver events */
     struct net_device       *netdev;    /* The OS handle for the driver interface. */
-
+    int                      wl_packet; /* Remember to stay awake */
+    int                      wl_count;  /* Wifi wakelock counter */
+#ifdef CONFIG_HAS_WAKELOCK
+    struct wake_lock         wl_wifi;   /* Wifi wakelock */
+    struct wake_lock         wl_rxwake; /* Wifi rx wakelock */
+#endif
     NDIS_HANDLE		         ConfigHandle;/* Temp - For Windows compatibility */
 
 } TWlanDrvIfObj, *TWlanDrvIfObjPtr;

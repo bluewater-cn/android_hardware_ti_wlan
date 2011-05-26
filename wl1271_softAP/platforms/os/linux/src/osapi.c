@@ -494,7 +494,9 @@ TI_BOOL os_receivePacket(TI_HANDLE OsContext, void *pRxDesc ,void *pPacket, TI_U
    printk("-->> os_receivePacket() pPacket=0x%x Length=%d skb=0x%x skb->data=0x%x skb->head=0x%x skb->len=%d\n",
 		  (int)pPacket, (int)Length, (int)skb, (int)skb->data, (int)skb->head, (int)skb->len);
 */
+   /* Use skb_reserve, it updates both skb->data and skb->tail. */
    skb->data = RX_ETH_PKT_DATA(pPacket);
+   skb->tail = skb->data;
    skb_put(skb, RX_ETH_PKT_LEN(pPacket));
 /*
    printk("-->> os_receivePacket() skb=0x%x skb->data=0x%x skb->head=0x%x skb->len=%d\n",
@@ -514,6 +516,8 @@ TI_BOOL os_receivePacket(TI_HANDLE OsContext, void *pRxDesc ,void *pPacket, TI_U
     */
    {
        CL_TRACE_START_L1();
+
+       os_wake_lock_timeout_enable(drv);
 
        netif_rx_ni(skb);
 
@@ -618,6 +622,115 @@ Return Value:  none
 void os_InterruptServiced (TI_HANDLE OsContext)
 {
 	/* To be implemented with Level IRQ */
+}
+
+/*-----------------------------------------------------------------------------
+Routine Name:  os_wake_lock_timeout
+
+Routine Description: Called to prevent system from suspend for some time
+
+Arguments:     OsContext - handle to OS context
+
+Return Value:  packet counter
+-----------------------------------------------------------------------------*/
+int os_wake_lock_timeout (TI_HANDLE OsContext)
+{
+	TWlanDrvIfObj *drv = (TWlanDrvIfObj *)OsContext;
+	int ret = 0;
+	unsigned long flags;
+
+	spin_lock_irqsave(&drv->lock, flags);
+	if (drv) {
+		ret = drv->wl_packet;
+		if (drv->wl_packet) {
+			drv->wl_packet = 0;
+#ifdef CONFIG_HAS_WAKELOCK
+			wake_lock_timeout(&drv->wl_rxwake, (HZ >> 1));
+#endif
+		}
+	}
+	spin_unlock_irqrestore(&drv->lock, flags);
+	/* printk("%s: %d\n", __func__, ret); */
+	return ret;
+}
+
+/*-----------------------------------------------------------------------------
+Routine Name:  os_wake_lock_timeout_enable
+
+Routine Description: Called to set flag for suspend prevention for some time
+
+Arguments:     OsContext - handle to OS context
+
+Return Value:  packet counter
+-----------------------------------------------------------------------------*/
+int os_wake_lock_timeout_enable (TI_HANDLE OsContext)
+{
+	TWlanDrvIfObj *drv = (TWlanDrvIfObj *)OsContext;
+	unsigned long flags;
+	int ret;
+
+	spin_lock_irqsave(&drv->lock, flags);
+	ret = drv->wl_packet = 1;
+	spin_unlock_irqrestore(&drv->lock, flags);
+	return ret;
+}
+
+/*-----------------------------------------------------------------------------
+Routine Name:  os_wake_lock
+
+Routine Description: Called to prevent system from suspend
+
+Arguments:     OsContext - handle to OS context
+
+Return Value:  wake_lock counter
+-----------------------------------------------------------------------------*/
+int os_wake_lock (TI_HANDLE OsContext)
+{
+	TWlanDrvIfObj *drv = (TWlanDrvIfObj *)OsContext;
+	int ret = 0;
+	unsigned long flags;
+
+	spin_lock_irqsave(&drv->lock, flags);
+	if (drv) {
+#ifdef CONFIG_HAS_WAKELOCK
+		if (!drv->wl_count)
+			wake_lock(&drv->wl_wifi);
+#endif
+		drv->wl_count++;
+		ret = drv->wl_count;
+	}
+	spin_unlock_irqrestore(&drv->lock, flags);
+	/* printk("%s: %d\n", __func__, ret); */
+	return ret;
+}
+
+/*-----------------------------------------------------------------------------
+Routine Name:  os_wake_unlock
+
+Routine Description: Called to allow system to suspend
+
+Arguments:     OsContext - handle to OS context
+
+Return Value:  wake_lock counter
+-----------------------------------------------------------------------------*/
+int os_wake_unlock (TI_HANDLE OsContext)
+{
+	TWlanDrvIfObj *drv = (TWlanDrvIfObj *)OsContext;
+	int ret = 0;
+	unsigned long flags;
+
+	spin_lock_irqsave(&drv->lock, flags);
+	if (drv && drv->wl_count) {
+		drv->wl_count--;
+#ifdef CONFIG_HAS_WAKELOCK
+		if (!drv->wl_count)
+			wake_unlock(&drv->wl_wifi);
+#endif
+		ret = drv->wl_count;
+	}
+	spin_unlock_irqrestore(&drv->lock, flags);
+	/* printk("%s: %d\n", __func__, ret); */
+	return ret;
 }
 
 

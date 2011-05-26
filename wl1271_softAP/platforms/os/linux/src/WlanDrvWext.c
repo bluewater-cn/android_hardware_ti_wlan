@@ -63,6 +63,7 @@ extern int wlanDrvIf_LoadFiles (TWlanDrvIfObj *drv, TLoaderFilesData *pInitInfo)
 extern int wlanDrvIf_Start (struct net_device *dev);
 extern int wlanDrvIf_Stop (struct net_device *dev);
 
+static int wext_ioctl_off = 0;
 
 /* callbacks for WEXT commands */
 static const iw_handler aWextHandlers[] = {
@@ -162,6 +163,11 @@ static struct iw_statistics *wlanDrvWext_GetWirelessStats(struct net_device *dev
     return (struct iw_statistics *) cmdHndlr_GetStat (drv->tCommon.hCmdHndlr);
 }
 
+void disable_wext_ioctl(void)
+{
+    wext_ioctl_off = 1;
+}
+
 /* Generic callback for WEXT commands */
 
 int wlanDrvWext_Handler (struct net_device *dev,
@@ -177,6 +183,11 @@ int wlanDrvWext_Handler (struct net_device *dev,
 
    void             *copy_to_buf=NULL, *param3=NULL; 
    ECmdType         CmdType = CMD_WEXT_CMD_E;
+
+    if (wext_ioctl_off) {
+       os_printf ("Driver is unloading..Ignore ioctl commands..\n");
+       return TI_NOK;
+    }
 
    os_memoryZero(drv, &my_command, sizeof(ti_private_cmd_t));
    os_memoryZero(drv, &mlme,       sizeof(struct iw_mlme));

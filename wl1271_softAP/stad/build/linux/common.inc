@@ -102,6 +102,9 @@ endif
 ifeq "$(HOST_PLATFORM)" "zoom1"
 	DK_DEFINES += -D HOST_PLATFORM_ZOOM1
 endif
+ifeq "$(HOST_PLATFORM)" "msm"
+	DK_DEFINES += -D HOST_PLATFORM_MSM
+endif
 
 ifeq ($(TI_HOSTAPD_LIB),y)
     DK_DEFINES += -D TI_HOSTAPD_LIB

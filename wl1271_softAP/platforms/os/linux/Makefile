@@ -5,6 +5,9 @@
 ##
 ##
 
+CROSS_COMPILE := arm-eabi-
+ARCH := arm
+
 #
 # Statically link the CU
 #
@@ -208,6 +211,9 @@ ifeq "$(HOST_PLATFORM)" "zoom2"
 TARGET = apps.tar
 endif
 ifeq "$(HOST_PLATFORM)" "zoom1"
+TARGET = apps.tar
+endif
+ifeq "$(HOST_PLATFORM)" "msm"
 TARGET = apps.tar
 endif
 ifeq "$(HOST_PLATFORM)" "*UNDEFINED*"

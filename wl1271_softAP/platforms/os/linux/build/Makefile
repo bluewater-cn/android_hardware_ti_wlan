@@ -55,7 +55,8 @@ OS_SRCS = \
     $(DK_ROOT)/platforms/os/linux/src/WlanDrvWext.c \
     $(DK_ROOT)/platforms/os/linux/src/CmdInterpretWext.c \
     $(DK_ROOT)/platforms/os/linux/src/RxBuf.c \
-    $(DK_ROOT)/platforms/hw/host_platform_$(HOST_PLATFORM)/linux/host_platform.c
+    $(DK_ROOT)/platforms/hw/host_platform_$(HOST_PLATFORM)/linux/host_platform.c \
+    $(DK_ROOT)/platforms/os/linux/src/htc_linux.c
 
 ifeq ($(STACK_PROFILING_ON),y)    
     OS_SRCS += $(DK_ROOT)/platforms/os/linux/src/stack_profile.c
@@ -91,8 +92,8 @@ ifeq ($(PROPRIETARY_SDIO), y)
     OS_SRCS += $(DK_ROOT)/external_drivers/$(HOST_PLATFORM)/Linux/proprietary_sdio/SdioDrv.c
     OS_INCS += $(DK_ROOT)/external_drivers/$(HOST_PLATFORM)/Linux/proprietary_sdio
 else
-    OS_SRCS += $(DK_ROOT)/external_drivers/$(HOST_PLATFORM)/Linux/standard_sdio/SdioDrv.c
-    OS_INCS += $(DK_ROOT)/external_drivers/$(HOST_PLATFORM)/Linux/standard_sdio
+#    OS_SRCS += $(DK_ROOT)/external_drivers/$(HOST_PLATFORM)/Linux/standard_sdio/SdioDrv.c
+#    OS_INCS += $(DK_ROOT)/external_drivers/$(HOST_PLATFORM)/Linux/standard_sdio
 endif
 
 OS_OBJS = $(patsubst %.c, %.o, $(OS_SRCS))

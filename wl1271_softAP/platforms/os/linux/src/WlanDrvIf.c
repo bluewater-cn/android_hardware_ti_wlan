@@ -88,8 +88,10 @@ extern void htc_linux_periodic_wakeup_exit(void);
 extern void htc_linux_periodic_wakeup_start(void);
 extern void htc_linux_periodic_wakeup_stop(void);
 
+#if defined HOST_PLATFORM_OMAP3430 || defined HOST_PLATFORM_ZOOM2 || defined HOST_PLATFORM_ZOOM1 || defined HOST_PLATFORM_MSM
 static int wlanDrvIf_pm_resume(void);
 static int wlanDrvIf_pm_suspend(void);
+#endif
 
 /* save driver handle just for module cleanup */
 static TWlanDrvIfObj *pDrvStaticHandle;  

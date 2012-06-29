@@ -305,7 +305,7 @@ void fwEvent_InterruptRequest (TI_HANDLE hFwEvent)
     /* Request switch to driver context for handling the FW-Interrupt event */
     context_RequestSchedule (pFwEvent->hContext, pFwEvent->uContextId);
 
-    CL_TRACE_END_L1("tiwlan_drv.ko", "IRQ", "FwEvent", "");
+    CL_TRACE_END_L1("tiap_drv.ko", "IRQ", "FwEvent", "");
 }
 
 
@@ -341,7 +341,7 @@ static void fwEvent_NewEvent (TI_HANDLE hFwEvent)
         pFwEvent->bIntrPending = TI_TRUE;
     }
 
-    CL_TRACE_END_L2("tiwlan_drv.ko", "CONTEXT", "FwEvent", "");
+    CL_TRACE_END_L2("tiap_drv.ko", "CONTEXT", "FwEvent", "");
 }
 
 
@@ -379,7 +379,7 @@ static void fwEvent_StateMachine (TfwEvent *pFwEvent)
                 twIf_Awake(pFwEvent->hTwIf);
                 eStatus = fwEvent_SmReadIntrInfo (pFwEvent);
                 pFwEvent->eSmState = FWEVENT_STATE_WAIT_INTR_INFO;
-                CL_TRACE_END_L5("tiwlan_drv.ko", "CONTEXT", "FwEvent", ".ReadInfo");
+                CL_TRACE_END_L5("tiap_drv.ko", "CONTEXT", "FwEvent", ".ReadInfo");
                 break;
             }
             /* WAIT_INTR_INFO: We have the interrupt info so call the handlers accordingly */
@@ -390,12 +390,12 @@ static void fwEvent_StateMachine (TfwEvent *pFwEvent)
                 /* If state was changed to IDLE by recovery or stop process, exit (process terminated) */
                 if (pFwEvent->eSmState == FWEVENT_STATE_IDLE) 
                 {
-                    CL_TRACE_END_L5("tiwlan_drv.ko", "CONTEXT", "FwEvent", ".HndlEvents");
-                    CL_TRACE_END_L3("tiwlan_drv.ko", "CONTEXT", "FwEvent", "");
+                    CL_TRACE_END_L5("tiap_drv.ko", "CONTEXT", "FwEvent", ".HndlEvents");
+                    CL_TRACE_END_L3("tiap_drv.ko", "CONTEXT", "FwEvent", "");
                     return;
                 }
                 pFwEvent->eSmState = FWEVENT_STATE_WAIT_HANDLE_COMPLT;
-                CL_TRACE_END_L5("tiwlan_drv.ko", "CONTEXT", "FwEvent", ".HndlEvents");
+                CL_TRACE_END_L5("tiap_drv.ko", "CONTEXT", "FwEvent", ".HndlEvents");
                 break;
             }
             /* WAIT_HANDLE_COMPLT: Current handling is completed. */
@@ -408,7 +408,7 @@ static void fwEvent_StateMachine (TfwEvent *pFwEvent)
                     pFwEvent->bIntrPending = TI_FALSE;
                     eStatus = fwEvent_SmReadIntrInfo (pFwEvent);
                     pFwEvent->eSmState = FWEVENT_STATE_WAIT_INTR_INFO;
-                    CL_TRACE_END_L5("tiwlan_drv.ko", "CONTEXT", "FwEvent", ".HndlCmplt");
+                    CL_TRACE_END_L5("tiap_drv.ko", "CONTEXT", "FwEvent", ".HndlCmplt");
                 }
                 /* Else - all done so release TwIf to sleep and exit */
                 else 
@@ -417,7 +417,7 @@ static void fwEvent_StateMachine (TfwEvent *pFwEvent)
                     pFwEvent->eSmState = FWEVENT_STATE_IDLE;
 
                     TRACE3(pFwEvent->hReport, REPORT_SEVERITY_INFORMATION, "fwEvent_StateMachine: Completed, NewState=%d, Status=%d, IntrPending=%d\n", pFwEvent->eSmState, eStatus, pFwEvent->bIntrPending);
-                    CL_TRACE_END_L3("tiwlan_drv.ko", "CONTEXT", "FwEvent", "");
+                    CL_TRACE_END_L3("tiap_drv.ko", "CONTEXT", "FwEvent", "");
 
                     /**** Finished all current events handling so exit ****/
                     return;
@@ -432,7 +432,7 @@ static void fwEvent_StateMachine (TfwEvent *pFwEvent)
 		/* If last status is Pending, exit the SM (to be called back upon Async operation completion) */
 		if (eStatus == TXN_STATUS_PENDING)
 		{
-            CL_TRACE_END_L3("tiwlan_drv.ko", "CONTEXT", "FwEvent", "");
+            CL_TRACE_END_L3("tiap_drv.ko", "CONTEXT", "FwEvent", "");
 			return;
 		}
 
@@ -440,7 +440,7 @@ static void fwEvent_StateMachine (TfwEvent *pFwEvent)
 		else if (eStatus == TXN_STATUS_ERROR)
 		{
             TRACE5(pFwEvent->hReport, REPORT_SEVERITY_ERROR, "fwEvent_StateMachine: NewState=%d, Status=%d, IntrPending=%d, EventVector=0x%x, EventMask=0x%x\n", pFwEvent->eSmState, eStatus, pFwEvent->bIntrPending, pFwEvent->uEventVector, pFwEvent->uEventMask);
-            CL_TRACE_END_L3("tiwlan_drv.ko", "CONTEXT", "FwEvent", "");
+            CL_TRACE_END_L3("tiap_drv.ko", "CONTEXT", "FwEvent", "");
             fwEvent_Stop ((TI_HANDLE)pFwEvent);
 			return;
 		}
@@ -494,7 +494,7 @@ static ETxnStatus fwEvent_SmReadIntrInfo (TfwEvent *pFwEvent)
     eStatus = twIf_TransactReadFWStatus (pFwEvent->hTwIf, &(pFwEvent->tFwStatusTxn.tTxnStruct));
 #endif
 
-    CL_TRACE_END_L4("tiwlan_drv.ko", "CONTEXT", "FwEvent", "");
+    CL_TRACE_END_L4("tiap_drv.ko", "CONTEXT", "FwEvent", "");
 
     /* Return the status of the FwStatus read (complete, pending or error) */
     return eStatus;
@@ -537,7 +537,7 @@ static ETxnStatus fwEvent_SmHandleEvents (TfwEvent *pFwEvent)
     eStatus = fwEvent_CallHandlers (pFwEvent);
 
     TRACE5(pFwEvent->hReport, REPORT_SEVERITY_INFORMATION, "fwEvent_SmHandleEvents: Status=%d, EventVector=0x%x, IntrPending=%d, NumPendHndlrs=%d, FwTimeOfst=%d\n", eStatus, pFwEvent->uEventVector, pFwEvent->bIntrPending, pFwEvent->uNumPendHndlrs, pFwEvent->uFwTimeOffset);
-    CL_TRACE_END_L4("tiwlan_drv.ko", "CONTEXT", "FwEvent", "");
+    CL_TRACE_END_L4("tiap_drv.ko", "CONTEXT", "FwEvent", "");
 
     /* Return the status of the handlers processing (complete, pending or error) */
     return eStatus;
@@ -603,7 +603,7 @@ static ETxnStatus fwEvent_CallHandlers (TfwEvent *pFwEvent)
         UPDATE_PENDING_HANDLERS_NUMBER(eStatus)
     } 
 
-    CL_TRACE_END_L4("tiwlan_drv.ko", "CONTEXT", "FwEvent", "");
+    CL_TRACE_END_L4("tiap_drv.ko", "CONTEXT", "FwEvent", "");
 
     /* Return COMPLETE if all handlers completed, and PENDING if not. */
     return ((pFwEvent->uNumPendHndlrs == 0) ? TXN_STATUS_COMPLETE : TXN_STATUS_PENDING);

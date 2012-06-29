@@ -342,7 +342,7 @@ void context_DriverTask (TI_HANDLE hContext)
         }
     }
 
-    CL_TRACE_END_L1("tiwlan_drv.ko", "CONTEXT", "TASK", "");
+    CL_TRACE_END_L1("tiap_drv.ko", "CONTEXT", "TASK", "");
 }
 
 

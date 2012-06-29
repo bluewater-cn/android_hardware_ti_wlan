@@ -356,7 +356,7 @@ TI_STATUS txCtrl_XmitData (TI_HANDLE hTxCtrl, TTxCtrlBlk *pPktCtrlBlk)
 	{
 		CL_TRACE_START_L4();
 		eHwQueStatus = TWD_txHwQueue_AllocResources (pTxCtrl->hTWD, pPktCtrlBlk);
-		CL_TRACE_END_L4("tiwlan_drv.ko", "INHERIT", "TX", ".allocResources");
+		CL_TRACE_END_L4("tiap_drv.ko", "INHERIT", "TX", ".allocResources");
 	}
 
 #ifdef AP_MODE_ENABLED
@@ -386,7 +386,7 @@ TI_STATUS txCtrl_XmitData (TI_HANDLE hTxCtrl, TTxCtrlBlk *pPktCtrlBlk)
 		TRACE1(pTxCtrl->hReport, REPORT_SEVERITY_INFORMATION, "txCtrl_XmitData(): Link busy - Packet dropped, link = %d\n", uHlid);
 #endif
 		txDataQ_StopLink (pTxCtrl->hTxDataQ, uHlid);
-		CL_TRACE_END_L3("tiwlan_drv.ko", "INHERIT", "TX", "");
+		CL_TRACE_END_L3("tiap_drv.ko", "INHERIT", "TX", "");
 		return STATUS_XMIT_BUSY;
 	}
 #endif /* AP_MODE_ENABLED */
@@ -413,7 +413,7 @@ TI_STATUS txCtrl_XmitData (TI_HANDLE hTxCtrl, TTxCtrlBlk *pPktCtrlBlk)
 		TRACE1(pTxCtrl->hReport, REPORT_SEVERITY_INFORMATION, "txCtrl_XmitData(): Queue busy - Packet dropped, queue = %d\n", uAc);
 #endif
 		txDataQ_StopQueue (pTxCtrl->hTxDataQ, pTxCtrl->admittedAcToTidMap[uAc]);
-		CL_TRACE_END_L3("tiwlan_drv.ko", "INHERIT", "TX", "");
+		CL_TRACE_END_L3("tiap_drv.ko", "INHERIT", "TX", "");
 		return STATUS_XMIT_BUSY;
 	}
 
@@ -421,14 +421,14 @@ TI_STATUS txCtrl_XmitData (TI_HANDLE hTxCtrl, TTxCtrlBlk *pPktCtrlBlk)
 	{
 		CL_TRACE_START_L4();
 		txCtrl_BuildDataPkt(pTxCtrl, pPktCtrlBlk, uAc, uBackpressure);
-		CL_TRACE_END_L4("tiwlan_drv.ko", "INHERIT", "TX", ".FillCtrlBlk");
+		CL_TRACE_END_L4("tiap_drv.ko", "INHERIT", "TX", ".FillCtrlBlk");
 	}
 
 	/* Call the Tx-Xfer to start packet transfer to the FW and return its result. */
 	{
 		CL_TRACE_START_L4();
 		eStatus = TWD_txXfer_SendPacket (pTxCtrl->hTWD, pPktCtrlBlk);
-		CL_TRACE_END_L4("tiwlan_drv.ko", "INHERIT", "TX", ".XferSendPacket");
+		CL_TRACE_END_L4("tiap_drv.ko", "INHERIT", "TX", ".XferSendPacket");
 	}
 
 	if (eStatus == TXN_STATUS_ERROR)
@@ -442,7 +442,7 @@ TI_STATUS txCtrl_XmitData (TI_HANDLE hTxCtrl, TTxCtrlBlk *pPktCtrlBlk)
 		/* Free the packet resources (packet and CtrlBlk)  */
 		txCtrl_FreePacket (pTxCtrl, pPktCtrlBlk, TI_NOK);
 
-		CL_TRACE_END_L3("tiwlan_drv.ko", "INHERIT", "TX", "");
+		CL_TRACE_END_L3("tiap_drv.ko", "INHERIT", "TX", "");
 		return STATUS_XMIT_ERROR;
 	}
 
@@ -450,7 +450,7 @@ TI_STATUS txCtrl_XmitData (TI_HANDLE hTxCtrl, TTxCtrlBlk *pPktCtrlBlk)
 	pTxCtrl->dbgCounters.dbgNumPktsSuccess[uAc]++;	
 	pTxCtrl->dbgLinkCounters.dbgNumPktsSuccess[uHlid]++;	
 #endif
-	CL_TRACE_END_L3("tiwlan_drv.ko", "INHERIT", "TX", "");
+	CL_TRACE_END_L3("tiap_drv.ko", "INHERIT", "TX", "");
 	return STATUS_XMIT_SUCCESS;
 }
 
@@ -515,7 +515,7 @@ TI_STATUS txCtrl_XmitMgmt (TI_HANDLE hTxCtrl, TTxCtrlBlk *pPktCtrlBlk)
 		TRACE1(pTxCtrl->hReport, REPORT_SEVERITY_INFORMATION, "txCtrl_XmitMgmt(): Link busy - Packet dropped, link = %d\n", uHlid);
 #endif
 		txMgmtQ_StopLink (pTxCtrl->hTxMgmtQ, uHlid);
-		CL_TRACE_END_L3("tiwlan_drv.ko", "INHERIT", "TX", "");
+		CL_TRACE_END_L3("tiap_drv.ko", "INHERIT", "TX", "");
 		return STATUS_XMIT_BUSY;
 	}
 #endif /* AP_MODE_ENABLED */
@@ -700,7 +700,7 @@ static void txCtrl_TxCompleteCb (TI_HANDLE hTxCtrl, TxResultDescriptor_t *pTxRes
 	if (pPktCtrlBlk->pNextFreeEntry != NULL)
 	{
 TRACE2(pTxCtrl->hReport, REPORT_SEVERITY_ERROR, "txCtrl_TxCompleteCb(): Pkt already free!!, DescID=%d, AC=%d\n", pTxResultInfo->descID, ac);
-		CL_TRACE_END_L3("tiwlan_drv.ko", "INHERIT", "TX_Cmplt", "");
+		CL_TRACE_END_L3("tiap_drv.ko", "INHERIT", "TX_Cmplt", "");
 		return;
 	}
 TRACE3(pTxCtrl->hReport, REPORT_SEVERITY_INFORMATION, "txCtrl_TxCompleteCb(): Pkt Tx Complete, DescID=%d, AC=%d, Status=%d\n", pTxResultInfo->descID, ac, pTxResultInfo->status);
@@ -719,7 +719,7 @@ TRACE3(pTxCtrl->hReport, REPORT_SEVERITY_INFORMATION, "txCtrl_TxCompleteCb(): Pk
     {
         CL_TRACE_START_L4();
         XCCMngr_LinkTestRetriesUpdate (pTxCtrl->hXCCMngr, pTxResultInfo->ackFailures);
-        CL_TRACE_END_L4("tiwlan_drv.ko", "INHERIT", "TX_Cmplt", ".XCCLinkTest");
+        CL_TRACE_END_L4("tiap_drv.ko", "INHERIT", "TX_Cmplt", ".XCCLinkTest");
     }
 #endif
 
@@ -730,7 +730,7 @@ TRACE3(pTxCtrl->hReport, REPORT_SEVERITY_INFORMATION, "txCtrl_TxCompleteCb(): Pk
     {
         CL_TRACE_START_L4();
         txCtrl_UpdateTxCounters (pTxCtrl, pTxResultInfo, pPktCtrlBlk, ac, bIsDataPkt);
-        CL_TRACE_END_L4("tiwlan_drv.ko", "INHERIT", "TX_Cmplt", ".Cntrs");
+        CL_TRACE_END_L4("tiap_drv.ko", "INHERIT", "TX_Cmplt", ".Cntrs");
     }
 
     /* On mgmt frames, send Tx complete packet to hostapd */
@@ -742,7 +742,7 @@ TRACE3(pTxCtrl->hReport, REPORT_SEVERITY_INFORMATION, "txCtrl_TxCompleteCb(): Pk
 	/* Free the packet resources (packet and CtrlBlk)  */
     txCtrl_FreePacket (pTxCtrl, pPktCtrlBlk, TI_OK);
 
-	CL_TRACE_END_L3("tiwlan_drv.ko", "INHERIT", "TX_Cmplt", "");
+	CL_TRACE_END_L3("tiap_drv.ko", "INHERIT", "TX_Cmplt", "");
 }
 
 

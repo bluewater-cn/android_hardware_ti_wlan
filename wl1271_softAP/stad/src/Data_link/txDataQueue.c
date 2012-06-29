@@ -563,7 +563,7 @@ TI_STATUS txDataQ_InsertPacket (TI_HANDLE hTxDataQ, TTxCtrlBlk *pPktCtrlBlk, TI_
 #endif /* TI_DBG */
     }
 
-    CL_TRACE_END_L3 ("tiwlan_drv.ko", "INHERIT", "TX", "");
+    CL_TRACE_END_L3 ("tiap_drv.ko", "INHERIT", "TX", "");
 
     return eStatus;
 }

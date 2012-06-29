@@ -95,7 +95,7 @@ OS_COMMON = $(OS_COMMON_DIR)/libuadrv.a
 # Location and filename of the linux OS object file.
 #
 OS_LINUX_DIR = $(DK_ROOT)/platforms/os/linux/build
-OS_LINUX = $(OS_LINUX_DIR)/tiwlan_drv_stub.o
+OS_LINUX = $(OS_LINUX_DIR)/tiap_drv_stub.o
 OS_AUXILIARY_LIBS = ../$(DRIVER_LIB)\ ../$(OS_COMMON)
 
 #
@@ -107,7 +107,7 @@ WLAN_CUDK_DIR = $(DK_ROOT)/CUDK
 # Location and filename of the wlan configuraion utility CLI program.
 #
 WLAN_CU_CLI_DIR = $(DK_ROOT)/CUDK/configurationutility
-WLAN_CU_CLI = $(WLAN_CUDK_DIR)/output/wlan_cu
+WLAN_CU_CLI = $(WLAN_CUDK_DIR)/output/tiap_cu
 
 #
 # Location and filename of the wlan logger utility program.
@@ -118,16 +118,12 @@ WLAN_LOGGER = $(WLAN_CUDK_DIR)/output/wlan_logger
 #
 # Location and filename of the WLAN loader utility
 #
-WLAN_LOADER_DIR = $(DK_ROOT)/CUDK/tiwlan_loader/
-WLAN_LOADER = $(WLAN_CUDK_DIR)/output/tiwlan_loader
+WLAN_LOADER_DIR = $(DK_ROOT)/CUDK/s_loader/
+WLAN_LOADER = $(WLAN_CUDK_DIR)/output/tiap_loader
 
 # Hostapd support
 TI_HOSTAPD ?= y
-ifeq ($(TI_HOSTAPD),y)
-	TI_MODULE_NAME=tiap_drv
-else
-	TI_MODULE_NAME=tiwlan_drv
-endif
+TI_MODULE_NAME=tiap_drv
 #
 # Location and filename of the Linux Wireless Tools
 #
@@ -300,12 +296,12 @@ clean:
 	@rm -f suppl.* apps.* voice.*
 	@rm -f *spi*.ko sdio.ko
 	@rm -f $(OUTPUT_DIR)/$(TI_MODULE_NAME).ko 
-	@rm -f $(OUTPUT_DIR)/tiwlan_drv.ko 
+	@rm -f $(OUTPUT_DIR)/tiap_drv.ko 
 	@rm -f wpa_supplicant 
 #	@rm -f $(FW_IMAGE_DEST_FILE)
 	@rm -rf *.o *.a \.*.o.cmd *~ *.~* core .depend dep
 
-#       @rm -f tiwlan_drv.ko $(OUTPUT_DIR)/gwsi_drv.o $(OUTPUT_DIR)/debug_tools.o
+#       @rm -f tiap_drv.ko $(OUTPUT_DIR)/gwsi_drv.o $(OUTPUT_DIR)/debug_tools.o
 #       @rm -rf $(OUTPUT_DIR)/iwconfig apps/iwlist $(OUTPUT_DIR)/iwevent
 
 # in order to remove all .*.o.cmd 
@@ -399,7 +395,7 @@ $(OUTPUT_FILE): $(DRIVER_LIB) $(OS_COMMON) $(OS_LINUX)
 .PHONY: link
 link:
 	$(MAKE) -C $(KERNEL_DIR) M=`pwd` ARCH=arm CROSS_COMPILE=$(CROSS_COMPILE) modules
-	mv tiwlan_drv.ko $(OUTPUT_FILE)
+	mv tiap_drv.ko $(OUTPUT_FILE)
 
 
 #

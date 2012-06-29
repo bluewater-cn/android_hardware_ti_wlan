@@ -321,7 +321,7 @@ ETxnStatus busDrv_Transact (TI_HANDLE hBusDrv, TTxnStruct *pTxn)
     if (bWithinAggregation)
     {
         TRACE1(pBusDrv->hReport, REPORT_SEVERITY_INFORMATION, "busDrv_Transact: In aggregation so exit, uTxnLength=%d\n", pBusDrv->uTxnLength);
-        CL_TRACE_END_L4("tiwlan_drv.ko", "INHERIT", "TXN", ".Transact");
+        CL_TRACE_END_L4("tiap_drv.ko", "INHERIT", "TXN", ".Transact");
         return TXN_STATUS_COMPLETE;
     }
 
@@ -330,7 +330,7 @@ ETxnStatus busDrv_Transact (TI_HANDLE hBusDrv, TTxnStruct *pTxn)
 
     TRACE1(pBusDrv->hReport, REPORT_SEVERITY_INFORMATION, "busDrv_Transact: Status = %d\n", pBusDrv->eCurrTxnStatus);
 
-    CL_TRACE_END_L4("tiwlan_drv.ko", "INHERIT", "TXN", ".Transact");
+    CL_TRACE_END_L4("tiap_drv.ko", "INHERIT", "TXN", ".Transact");
 
     /* return transaction status - COMPLETE, PENDING or ERROR */
     /* The status is updated in busDrv_SendTxnParts(). It is Async (pending) if not completed in this context */
@@ -613,7 +613,7 @@ static void busDrv_TxnDoneCb (TI_HANDLE hBusDrv, int iStatus)
 
         TXN_PARAM_SET_STATUS(pBusDrv->pCurrTxn, TXN_PARAM_STATUS_ERROR);
         pBusDrv->fTxnDoneCb (pBusDrv->hCbHandle, pBusDrv->pCurrTxn);
-        CL_TRACE_END_L1("tiwlan_drv.ko", "TXN_DONE", "BusDrvCB", "");
+        CL_TRACE_END_L1("tiap_drv.ko", "TXN_DONE", "BusDrvCB", "");
         return;
     }
 
@@ -622,7 +622,7 @@ static void busDrv_TxnDoneCb (TI_HANDLE hBusDrv, int iStatus)
     /* Continue sending the remained transaction parts. */
     busDrv_SendTxnParts (pBusDrv);
 
-    CL_TRACE_END_L1("tiwlan_drv.ko", "TXN_DONE", "BusDrvCB", "");
+    CL_TRACE_END_L1("tiap_drv.ko", "TXN_DONE", "BusDrvCB", "");
 }
 
 

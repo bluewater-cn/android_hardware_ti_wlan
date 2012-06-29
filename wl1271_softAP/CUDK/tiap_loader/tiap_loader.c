@@ -1,5 +1,5 @@
 /*
- * tiwlan_loader.c
+ * tiap_loader.c
  *
  * Copyright 2001-2010 Texas Instruments, Inc. - http://www.ti.com/
  * 
@@ -17,7 +17,7 @@
  */
  
 /** 
- * \file  tiwlan_loader.c 
+ * \file  tiap_loader.c 
  * \brief Loader implementation - sends FW image, NVS image and ini file to the driver
  */
 
@@ -38,16 +38,16 @@
 #include "ipc_sta.h"
 #include "WlanDrvCommon.h"
 
-#define TIWLAN_DRV_NAME "tiap"
+#define TIAP_DRV_NAME "tiap"
 
 S8    g_drv_name[IF_NAME_SIZE + 1];
 
 S32 print_usage(VOID)
 {
-    os_error_printf (CU_MSG_INFO1, (PS8)"Usage: ./wlan_loader [driver_name] [options]\n");
+    os_error_printf (CU_MSG_INFO1, (PS8)"Usage: ./tiap_loader [driver_name] [options]\n");
     os_error_printf (CU_MSG_INFO1, (PS8)"   -e <filename>  - eeprom image file name. default=./nvs_map.bin\n");
     os_error_printf (CU_MSG_INFO1, (PS8)"   -n - no eeprom file\n");
-    os_error_printf (CU_MSG_INFO1, (PS8)"   -i <filename>  - init file name. default=tiwlan.ini\n");
+    os_error_printf (CU_MSG_INFO1, (PS8)"   -i <filename>  - init file name. default=tiwlan_ap.ini\n");
     os_error_printf (CU_MSG_INFO1, (PS8)"   -f <filename>  - firmware image file name. default=firmware.bin\n");
     return 1;
 }
@@ -69,13 +69,13 @@ S32 init_driver( PS8 adapter_name, PS8 eeprom_file_name,
         return rc;
 
     os_error_printf(CU_MSG_INFO1, (PS8)"+---------------------------+\n");
-    os_error_printf(CU_MSG_INFO1, (PS8)"| wlan_loader: initializing |\n");
+    os_error_printf(CU_MSG_INFO1, (PS8)"| tiap_loader: initializing |\n");
     os_error_printf(CU_MSG_INFO1, (PS8)"+---------------------------+\n");
 
     hIpcSta = IpcSta_Create(adapter_name);
     if (hIpcSta == NULL)
     {	
-        os_error_printf (CU_MSG_ERROR, (PS8)"wlan_loader: cant allocate IpcSta context\n", eeprom_file_name);
+        os_error_printf (CU_MSG_ERROR, (PS8)"tiap_loader: cant allocate IpcSta context\n", eeprom_file_name);
         goto init_driver_end;
     }
 	
@@ -154,7 +154,7 @@ S32 init_driver( PS8 adapter_name, PS8 eeprom_file_name,
     /* Load driver defaults */
     if(EOALERR_IPC_STA_ERROR_SENDING_WEXT == IPC_STA_Private_Send(hIpcSta, DRIVER_INIT_PARAM, init_info, req_size, NULL, 0))
     {
-        os_error_printf(CU_MSG_ERROR, (PS8)"Wlan_loader: Error sending init command (DRIVER_INIT_PARAM) to driver\n");
+        os_error_printf(CU_MSG_ERROR, (PS8)"tiap_loader: Error sending init command (DRIVER_INIT_PARAM) to driver\n");
         goto init_driver_end;
     }
 
@@ -202,7 +202,7 @@ S32 user_main(S32 argc, PPS8 argv)
 {
     S32 i;
     PS8 eeprom_file_name = (PS8)"./nvs_map.bin";
-    PS8 init_file_name = (PS8)"tiwlan.ini";
+    PS8 init_file_name = (PS8)"tiwlan_ap.ini";
     PS8 firmware_file_name = (PS8)"firmware.bin";
 
     /* Parse command line parameters */
@@ -246,7 +246,7 @@ S32 user_main(S32 argc, PPS8 argv)
 
     if( !g_drv_name[0] )
     {
-        os_strcpy(g_drv_name, (PS8)TIWLAN_DRV_NAME "0" );
+        os_strcpy(g_drv_name, (PS8)TIAP_DRV_NAME "0" );
     }
 
 #ifdef ANDROID

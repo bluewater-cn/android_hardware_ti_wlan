@@ -168,7 +168,7 @@ static int xmit_Bridge (struct sk_buff *skb, struct net_device *dev, TIntraBssBr
     {
         drv->stats.tx_errors++;
         os_profile (drv, 1, 0);
-        CL_TRACE_END_L1("tiwlan_drv.ko", "OS", "TX", "");
+        CL_TRACE_END_L1("tiap_drv.ko", "OS", "TX", "");
         return 0;
     }
 
@@ -220,7 +220,7 @@ static int xmit_Bridge (struct sk_buff *skb, struct net_device *dev, TIntraBssBr
     }
     os_profile (drv, 1, 0);
 
-    CL_TRACE_END_L1("tiwlan_drv.ko", "OS", "TX", "");
+    CL_TRACE_END_L1("tiap_drv.ko", "OS", "TX", "");
 
     return 0;
 }
@@ -812,7 +812,7 @@ static int wlanDrvIf_SetupNetif (TWlanDrvIfObj *drv)
 
    NETDEV_SET_PRIVATE(dev,drv);
    drv->netdev = dev;
-   strcpy (dev->name, TIWLAN_DRV_IF_NAME);
+   strcpy (dev->name, TIAP_DRV_IF_NAME);
    netif_carrier_off (dev);
 #if (LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 31))
    /* the following is required on at least BSP 23.8 and higher.
@@ -914,7 +914,7 @@ static int wlanDrvIf_Create (void)
     drv->tCommon.eIfRole = IF_ROLE_TYPE_AP;
 #endif
 
-    drv->pWorkQueue = create_freezeable_workqueue(TIWLAN_WQ_NAME);
+    drv->pWorkQueue = create_freezeable_workqueue(TIAP_WQ_NAME);
     if (!drv->pWorkQueue)
     {
         ti_dprintf (TIWLAN_LOG_ERROR, "wlanDrvIf_Create(): Failed to create workQ!\n");
@@ -1268,7 +1268,7 @@ TI_BOOL wlanDrvIf_receivePacket(TI_HANDLE OsContext, void *pRxDesc ,void *pPacke
        netif_rx_ni(skb);
 
        /* Note: Don't change this trace (needed to exclude OS processing from Rx CPU utilization) */
-       CL_TRACE_END_L1("tiwlan_drv.ko", "OS", "RX", "");
+       CL_TRACE_END_L1("tiap_drv.ko", "OS", "RX", "");
 
    }
    else if( INTRA_BSS_BRIDGE_UNICAST == eBridge) 

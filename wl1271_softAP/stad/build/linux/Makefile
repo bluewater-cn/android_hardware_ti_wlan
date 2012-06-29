@@ -70,12 +70,12 @@ ifneq ($(KERNELRELEASE),)
 # Intermediate object name - this should be converted to the appropriate library file
 # after the kernel makefile finishes its work.
 #
-	obj-m = tiwlan_drv.o
+	obj-m = tiap_drv.o
 
 #
 # List of object files the kernel makefile needs to compile.
 #
-	tiwlan_drv-y = $(DK_OBJS)
+	tiap_drv-y = $(DK_OBJS)
 
 
 else	# ifneq ($(KERNELRELEASE),)

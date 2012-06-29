@@ -522,7 +522,7 @@ TI_BOOL os_receivePacket(TI_HANDLE OsContext, void *pRxDesc ,void *pPacket, TI_U
        netif_rx_ni(skb);
 
        /* Note: Don't change this trace (needed to exclude OS processing from Rx CPU utilization) */
-       CL_TRACE_END_L1("tiwlan_drv.ko", "OS", "RX", "");
+       CL_TRACE_END_L1("tiap_drv.ko", "OS", "RX", "");
    }
 
    return TI_TRUE;
@@ -752,7 +752,7 @@ int os_RequestSchedule (TI_HANDLE OsContext)
     *         can occur immediately and call os_RequestSchedule again which will confuse the trace tools
     */
    CL_TRACE_START_L3();
-   CL_TRACE_END_L3("tiwlan_drv.ko", "OS", "TASK", "");
+   CL_TRACE_END_L3("tiap_drv.ko", "OS", "TASK", "");
 
    if (!queue_work (drv->pWorkQueue, &drv->tWork))
    {

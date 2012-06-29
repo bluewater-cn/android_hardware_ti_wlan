@@ -40,8 +40,8 @@
 #define DRV_NAME "\\\\.\\tiwlnpci"
 #endif
 
-#ifndef TIWLAN_DRV_NAME
-#define TIWLAN_DRV_NAME  DRV_NAME
+#ifndef TIAP_DRV_NAME
+#define TIAP_DRV_NAME  DRV_NAME
 #endif
 
 #define IN     /* input parameter          */

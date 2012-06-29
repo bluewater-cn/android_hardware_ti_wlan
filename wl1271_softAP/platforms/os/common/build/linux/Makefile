@@ -13,11 +13,7 @@ DK_ROOT = ../../../../..
 # Hostapd support
 TI_HOSTAPD ?= y
 
-ifeq ($(TI_HOSTAPD),y)
-	TI_MODULE_NAME=tiap_drv
-else
-	TI_MODULE_NAME=tiwlan_drv
-endif
+TI_MODULE_NAME=tiap_drv
 
 #
 # Includes common definitions and source file list

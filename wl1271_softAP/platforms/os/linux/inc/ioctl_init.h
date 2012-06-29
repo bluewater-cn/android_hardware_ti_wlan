@@ -45,7 +45,7 @@
 #include <linux/netdevice.h>
 
 #ifndef DRIVER_NAME
-#define DRIVER_NAME "TIWLAN"
+#define DRIVER_NAME "TIAP"
 #endif
 
 #if defined(DEBUG_MESSAGES)

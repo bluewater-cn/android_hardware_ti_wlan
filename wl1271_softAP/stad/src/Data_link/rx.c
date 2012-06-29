@@ -1073,7 +1073,7 @@ void rxData_receivePacketFromWlan (TI_HANDLE hRxData, void *pBuffer, TRxAttr* pR
             pRxData->rxDataLinkCounters[uHlid].sendToDataDispatcher++;
             /* send pBuffer to data dispatcher */
             rxData_dataPacketDisptcher(hRxData, pBuffer, pRxAttr);
-            CL_TRACE_END_L3("tiwlan_drv.ko", "INHERIT", "RX", ".DataPacket");
+            CL_TRACE_END_L3("tiap_drv.ko", "INHERIT", "RX", ".DataPacket");
             break;
         }
 

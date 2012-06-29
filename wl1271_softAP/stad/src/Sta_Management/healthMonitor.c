@@ -388,8 +388,8 @@ void healthMonitor_proccessFailureEvent (TI_HANDLE hHealthMonitor, TI_BOOL bTwdI
         }
         else
         {
-            TRACE0(pHealthMonitor->hReport, REPORT_SEVERITY_CONSOLE, "healthMonitor_proccessFailureEvent: Recovery is disabled in tiwlan.ini, abort recovery process\n");
-            WLAN_OS_REPORT(("healthMonitor_proccessFailureEvent: Recovery is disabled in tiwlan.ini, abort recovery process\n"));
+            TRACE0(pHealthMonitor->hReport, REPORT_SEVERITY_CONSOLE, "healthMonitor_proccessFailureEvent: Recovery is disabled in tiwlan_ap.ini, abort recovery process\n");
+            WLAN_OS_REPORT(("healthMonitor_proccessFailureEvent: Recovery is disabled in tiwlan_ap.ini, abort recovery process\n"));
         }
 
         pHealthMonitor->failureEvent = (TI_UINT32)NO_FAILURE;

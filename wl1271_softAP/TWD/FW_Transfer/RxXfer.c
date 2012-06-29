@@ -461,7 +461,7 @@ ETxnStatus rxXfer_RxEvent (TI_HANDLE hRxXfer, FwStatus_t *pFwStatus)
     /* If no new Rx packets - exit */
     if ((pFwStatusCounters->fwRxCntr % NUM_RX_PKT_DESC) == (pRxXfer->uFwRxCntr % NUM_RX_PKT_DESC))
     {
-        CL_TRACE_END_L2("tiwlan_drv.ko", "CONTEXT", "RX", "");
+        CL_TRACE_END_L2("tiap_drv.ko", "CONTEXT", "RX", "");
         return TXN_STATUS_COMPLETE;
     }
 
@@ -479,7 +479,7 @@ ETxnStatus rxXfer_RxEvent (TI_HANDLE hRxXfer, FwStatus_t *pFwStatus)
     /* Handle all new Rx packets */
     rc = rxXfer_Handle (pRxXfer);
 
-    CL_TRACE_END_L2("tiwlan_drv.ko", "CONTEXT", "RX", "");
+    CL_TRACE_END_L2("tiap_drv.ko", "CONTEXT", "RX", "");
     return TXN_STATUS_COMPLETE;
 }
 
@@ -521,7 +521,7 @@ static TI_STATUS rxXfer_Handle(TI_HANDLE hRxXfer)
     if (pRxXfer->uAvailableTxn == 0 )
     {
         TRACE0(pRxXfer->hReport, REPORT_SEVERITY_ERROR, "rxXfer_Handle: No available Txn structures left!\n");
-        CL_TRACE_END_L2("tiwlan_drv.ko", "CONTEXT", "RX", "");
+        CL_TRACE_END_L2("tiap_drv.ko", "CONTEXT", "RX", "");
         return TI_NOK;
     }
 
@@ -688,7 +688,7 @@ static TI_STATUS rxXfer_Handle(TI_HANDLE hRxXfer)
         /* Can't process more packets so exit */
         if (bExit)
         {
-            CL_TRACE_END_L2("tiwlan_drv.ko", "CONTEXT", "RX", "");
+            CL_TRACE_END_L2("tiap_drv.ko", "CONTEXT", "RX", "");
             return TI_OK;
         }
 
@@ -793,7 +793,7 @@ static void rxXfer_TxnDoneCb (TI_HANDLE hRxXfer, TTxnStruct *pTxn)
         rxXfer_Handle (hRxXfer);
     }
 
-    CL_TRACE_END_L2("tiwlan_drv.ko", "INHERIT", "RX", "");
+    CL_TRACE_END_L2("tiap_drv.ko", "INHERIT", "RX", "");
 }
 
 

@@ -60,8 +60,8 @@
 #define CHK_NULL(p)    (p)
 #endif
 
-#define TIWLAN_DRV_NAME "tiap0"
-#define SUPPL_IF_FILE "/var/run/tiwlan0"
+#define TIAP_DRV_NAME "tiap0"
+#define SUPPL_IF_FILE "/data/misc/wifi/hostapd/"
  
 extern int consoleRunScript( char *script_file, THandle hConsole);
 
@@ -1191,11 +1191,11 @@ static S32 TiCon_Init_Console_Menu(TiCon_t* pTiCon)
 
 static S32 TiCon_Print_Usage(VOID)
 {
-    os_error_printf(CU_MSG_ERROR, (PS8)"Usage: ./wlan_cu [driver_name] [options]\n");    
+    os_error_printf(CU_MSG_ERROR, (PS8)"Usage: ./tiap_cu [driver_name] [options]\n");    
     os_error_printf(CU_MSG_ERROR, (PS8)"   -b             - bypass supplicant\n");
 	os_error_printf(CU_MSG_ERROR, (PS8)"   -i<ifname>     - supplicant interface file\n");
 	os_error_printf(CU_MSG_ERROR, (PS8)"example:\n");
-	os_error_printf(CU_MSG_ERROR, (PS8)"   ./wlan_cu tiwlan0 -i/voice/tiwlan0\n");
+	os_error_printf(CU_MSG_ERROR, (PS8)"   ./tiap_cu tiap0 -i/voice/tiap0\n");
     return 0;
 }
 
@@ -1257,7 +1257,7 @@ S32 user_main(S32 argc, PS8* argv)
 	/* fill the driver name */
     if(fill_name == TRUE)
     {
-        os_strcpy(g_TiCon.drv_name, (PS8)TIWLAN_DRV_NAME);
+        os_strcpy(g_TiCon.drv_name, (PS8)TIAP_DRV_NAME);
     }
 
 	/* fill supplicant interface file */

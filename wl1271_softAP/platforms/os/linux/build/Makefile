@@ -25,11 +25,7 @@ DK_ROOT = ../../../..
 # Hostapd support
 TI_HOSTAPD ?= y
 
-ifeq ($(TI_HOSTAPD),y)
-	TI_MODULE_NAME=tiap_drv
-else
-	TI_MODULE_NAME=tiwlan_drv
-endif
+TI_MODULE_NAME=tiap_drv
 
 #
 # Includes common definitions and source file list
@@ -120,8 +116,8 @@ RAD_IMAGE = $(DK_ROOT)/fw/Latest/nvs_map.bin
 # Location and filename of the linux OS stub object file created by this makefile.
 #
 OUTPUT_DIR = $(DK_ROOT)/platforms/os/linux/build
-OUTPUT_FILE = $(OUTPUT_DIR)/tiwlan_drv_stub.o
-OUTPUT_LIB = $(OUTPUT_DIR)/tiwlan_drv_stub.a
+OUTPUT_FILE = $(OUTPUT_DIR)/tiap_drv_stub.o
+OUTPUT_LIB = $(OUTPUT_DIR)/tiap_drv_stub.a
 
 
 

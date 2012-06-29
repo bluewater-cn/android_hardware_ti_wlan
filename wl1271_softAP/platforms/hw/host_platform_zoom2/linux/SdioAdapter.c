@@ -296,13 +296,13 @@ ETxnStatus sdioAdapt_Transact (unsigned int  uFuncId,
         {
             CL_TRACE_START_L2();
             iStatus = sdioDrv_ReadSync (uFuncId, uHwAddr, pHostAddr, uLength, bFixedAddr, bMore);
-            CL_TRACE_END_L2("tiwlan_drv.ko", "INHERIT", "SDIO", ".ReadSync");
+            CL_TRACE_END_L2("tiap_drv.ko", "INHERIT", "SDIO", ".ReadSync");
         }
         else 
         {
             CL_TRACE_START_L2();
             iStatus = sdioDrv_WriteSync (uFuncId, uHwAddr, pHostAddr, uLength, bFixedAddr, bMore);
-            CL_TRACE_END_L2("tiwlan_drv.ko", "INHERIT", "SDIO", ".WriteSync");
+            CL_TRACE_END_L2("tiap_drv.ko", "INHERIT", "SDIO", ".WriteSync");
         }
 
         /* If failed return ERROR, if succeeded return COMPLETE */
@@ -324,13 +324,13 @@ ETxnStatus sdioAdapt_Transact (unsigned int  uFuncId,
         {
             CL_TRACE_START_L2();
             iStatus = sdioDrv_ReadAsync (uFuncId, uHwAddr, pHostAddr, uLength, bBlkMode, bFixedAddr, bMore);
-            CL_TRACE_END_L2("tiwlan_drv.ko", "INHERIT", "SDIO", ".ReadAsync");
+            CL_TRACE_END_L2("tiap_drv.ko", "INHERIT", "SDIO", ".ReadAsync");
         }
         else 
         {
             CL_TRACE_START_L2();
             iStatus = sdioDrv_WriteAsync (uFuncId, uHwAddr, pHostAddr, uLength, bBlkMode, bFixedAddr, bMore);
-            CL_TRACE_END_L2("tiwlan_drv.ko", "INHERIT", "SDIO", ".WriteAsync");
+            CL_TRACE_END_L2("tiap_drv.ko", "INHERIT", "SDIO", ".WriteAsync");
         }
 
         /* If failed return ERROR, if succeeded return PENDING */
